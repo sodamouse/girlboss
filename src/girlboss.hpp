@@ -64,8 +64,8 @@
     Girlboss is a stb-style cli argument parser inspired by Go's Flag moduel.
     Quickstart:
         - Create `girlboss.cpp` file
-        - Include this file
         - #define GIRLBOSS_IMPL
+        - Include this file
 
     You will then be able to include this header file in your files and use it.
 -------------------------------------------------------------------------------*/
@@ -111,7 +111,14 @@ struct Flag
 {
     FlagType type;
     const char* name;
-    uintptr_t data;
+
+    union {
+        bool asBool;
+        int asInt;
+        double asDouble;
+        const char* asStr;
+    };
+
     const char* docstring;
 
     friend std::ostream& operator<<(std::ostream& stream, const Flag& flag)
@@ -126,7 +133,7 @@ static Flag FLAGS[FLAG_CAP];
 static int flagIndex = 0;
 const char* PROGRAM_NAME;
 
-char* shift_array(int& argc, char**& argv)
+static char* shift_array(int& argc, char**& argv)
 {
     assert(argc > 0 && "Ran out of arguments!");
     char* result = *argv;
@@ -162,12 +169,12 @@ void parse(const char* programName, int argc, char* argv[])
 
                     if (std::strcmp(value, "false") == 0)
                     {
-                        *(bool*)&FLAGS[i].data = false;
+                        FLAGS[i].asBool = false;
                     }
 
                     else if (std::strcmp(value, "true") == 0)
                     {
-                        *(bool*)&FLAGS[i].data = true;
+                        FLAGS[i].asBool = true;
                     }
 
                     else
@@ -191,7 +198,7 @@ void parse(const char* programName, int argc, char* argv[])
 
                     try
                     {
-                        *(int*)&FLAGS[i].data = std::stoi(value);
+                        FLAGS[i].asInt = std::stoi(value);
                     }
 
                     catch (const std::exception& error)
@@ -215,7 +222,7 @@ void parse(const char* programName, int argc, char* argv[])
 
                     try
                     {
-                        *(double*)&FLAGS[i].data = std::atof(value);
+                        FLAGS[i].asDouble = std::atof(value);
                     }
 
                     catch (const std::exception& error)
@@ -236,11 +243,11 @@ void parse(const char* programName, int argc, char* argv[])
                     }
 
                     const char* value = shift_array(argc, argv);
-                    *(const char**)&FLAGS[i].data = value;
+                    FLAGS[i].asStr = value;
                 }
                 break;
                 case FLAG_OPTION: {
-                    *(bool*)&FLAGS[i].data = !*(bool*)&FLAGS[i].data;
+                    FLAGS[i].asBool = !FLAGS[i].asBool;
                 };
                 break;
                 }
@@ -269,41 +276,41 @@ static Flag* flag_new(FlagType type, const char* name, const char* docstring)
 bool* flag_bool(const char* name, bool defaultValue, const char* docstring)
 {
     auto* flag = flag_new(FLAG_BOOL, name, docstring);
-    *(bool*)&flag->data = defaultValue;
+    flag->asBool = defaultValue;
 
-    return (bool*)&flag->data;
+    return &flag->asBool;
 }
 
 int* flag_int(const char* name, int defaultValue, const char* docstring)
 {
     auto* flag = flag_new(FLAG_INT, name, docstring);
-    *(int*)&flag->data = defaultValue;
+    flag->asInt = defaultValue;
 
-    return (int*)&flag->data;
+    return &flag->asInt;
 }
 
 double* flag_double(const char* name, double defaultValue, const char* docstring)
 {
     auto* flag = flag_new(FLAG_DOUBLE, name, docstring);
-    *(double*)&flag->data = defaultValue;
+    flag->asDouble = defaultValue;
 
-    return (double*)&flag->data;
+    return &flag->asDouble;
 }
 
 const char** flag_str(const char* name, const char* defaultValue, const char* docstring)
 {
     auto* flag = flag_new(FLAG_STR, name, docstring);
-    *(const char**)&flag->data = defaultValue;
+    flag->asStr = defaultValue;
 
-    return (const char**)&flag->data;
+    return &flag->asStr;
 }
 
 bool* flag_option(const char* name, bool defaultValue, const char* docstring)
 {
     auto* flag = flag_new(FLAG_OPTION, name, docstring);
-    *(bool*)&flag->data = defaultValue;
+    flag->asBool = defaultValue;
 
-    return (bool*)&flag->data;
+    return &flag->asBool;
 }
 
 } // namespace Girlboss
