@@ -8,9 +8,6 @@ It is inspired by Go's Flag module, because it's just brilliant.
 - Automatic help message generation
 - Fast and simple
 
-## Dependencies
-I use fmt for the printing functionality because C++'s `<iostream>` is slow and bloated. I might make this optional in the future though.
-
 ## Usage
 Enable it in your project like any other stb style, header-only library:
 - Create `girlboss.cpp` file
