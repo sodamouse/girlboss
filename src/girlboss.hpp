@@ -1,7 +1,5 @@
 #pragma once
 
-// TODO Add unrecognized argument feedback
-
 /* ------------------------------------------------------------------------------
     The MIT License (MIT)
 
@@ -133,10 +131,13 @@ void parse(const char* programName, int argc, char* argv[])
     while (argc > 0)
     {
         char* arg = shift_array(argc, argv);
+        bool handled = false;
         for (int i = 0; i < flagIndex; ++i)
         {
             if (std::strcmp(arg, FLAGS[i].name) == 0)
             {
+                handled = true;
+
                 switch (FLAGS[i].type)
                 {
                 case FLAG_BOOL: {
@@ -162,7 +163,7 @@ void parse(const char* programName, int argc, char* argv[])
                     else
                     {
                         printf("Boolean argument expects 'true' or "
-                                   "'false': %s [true/false]",
+                                   "'false': %s [true/false]\n",
                                    FLAGS[i].name);
                         exit(-1);
                     }
@@ -234,6 +235,12 @@ void parse(const char* programName, int argc, char* argv[])
                 break;
                 }
             }
+        }
+
+        if (!handled)
+        {
+            printf("Unrecognized arugment: %s\n", arg);
+            exit(-1);
         }
     }
 }
