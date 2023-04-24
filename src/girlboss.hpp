@@ -1,7 +1,6 @@
 #pragma once
 
 // TODO Add unrecognized argument feedback
-// TODO Print the type and default value in help message
 
 /* ------------------------------------------------------------------------------
     The MIT License (MIT)
@@ -93,10 +92,6 @@ void print_usage();
 #include <string>
 
 namespace Girlboss {
-struct Flag;
-}
-
-namespace Girlboss {
 
 enum FlagType { FLAG_BOOL, FLAG_INT, FLAG_DOUBLE, FLAG_STR, FLAG_OPTION };
 
@@ -118,7 +113,7 @@ struct Flag
 static constexpr int FLAG_CAP = 100;
 static Flag FLAGS[FLAG_CAP];
 static int flagIndex = 0;
-const char* PROGRAM_NAME;
+static const char* PROGRAM_NAME;
 
 static char* shift_array(int& argc, char**& argv)
 {
